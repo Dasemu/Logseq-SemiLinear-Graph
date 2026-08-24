@@ -1,54 +1,54 @@
 # Logseq SemiLinear Graph
 
-Visualización experimental para grafos de [Logseq](https://logseq.com/): los *journals*
-(notas diarias) se colocan en una única línea horizontal ordenada cronológicamente, y el
-resto de páginas ("notas") flotan por encima, posicionadas mediante una simulación de
-fuerzas (`d3-force`) según cuántos enlaces tienen y a qué journals/páginas están conectadas.
+An experimental visualization for [Logseq](https://logseq.com/) graphs: *journals*
+(daily notes) are placed on a single horizontal line ordered chronologically, and the
+rest of the pages ("notes") float above it, positioned by a force simulation
+(`d3-force`) based on how many links they have and which journals/pages they connect to.
 
-El resultado es una especie de línea de tiempo: cuanto más conectada está una nota, más
-cerca se queda de la línea; las notas más periféricas se dispersan hacia arriba.
+The result is a kind of timeline: the more connected a note is, the closer it stays to
+the line; more peripheral notes drift further up.
 
-## Cómo funciona
+## How it works
 
-1. **`parse_graph.py`** recorre las carpetas `journals/` y `pages/` de un grafo de Logseq,
-   extrae los enlaces `[[...]]` y `#tags`, resuelve los enlaces a fechas de journal
-   (formato `[[Apr 27th, 2026]]`) contra los archivos `yyyy_MM_dd.md`, y vuelca todo a
-   `graph_data.json` (nodos, aristas y grado de cada nodo).
-2. **`build_html.py`** toma `graph_data.json` y genera `graph_view.html`: una página
-   autocontenida (D3.js vendorizado en `vendor/d3.min.js`, sin dependencias de red) con
-   el visualizador interactivo.
+1. **`parse_graph.py`** walks the `journals/` and `pages/` folders of a Logseq graph,
+   extracts `[[...]]` links and `#tags`, resolves journal-date links (format
+   `[[Apr 27th, 2026]]`) against the `yyyy_MM_dd.md` files, and dumps everything to
+   `graph_data.json` (nodes, edges, and each node's degree).
+2. **`build_html.py`** takes `graph_data.json` and generates `graph_view.html`: a
+   self-contained page (D3.js vendored in `vendor/d3.min.js`, no network dependencies)
+   with the interactive visualizer.
 
-## Uso
+## Usage
 
 ```bash
-python3 parse_graph.py /ruta/a/tu/graph_data.json
+python3 parse_graph.py /path/to/your/graph_data.json
 python3 build_html.py
 ```
 
-Por defecto ambos scripts leen el grafo desde `~/Notas` (editar las constantes `NOTAS`,
-`DATA_PATH`/`OUT_PATH` al principio de cada script para apuntar a otra ruta). Abre
-`graph_view.html` en el navegador (o sírvelo con `python3 -m http.server`).
+By default both scripts read the graph from `~/Notas` (edit the `NOTAS`,
+`DATA_PATH`/`OUT_PATH` constants at the top of each script to point elsewhere). Open
+`graph_view.html` in a browser (or serve it with `python3 -m http.server`).
 
-## Visualizador
+## Viewer
 
-- **Zoom / pan**: rueda del ratón y arrastre sobre el fondo.
-- **Arrastrar un nodo**: lo fija en esa posición.
-- **Buscador**: resalta notas por nombre.
-- **Panel "Fuerzas del layout"**: controles en vivo para ajustar la simulación —
-  separación vertical, repulsión entre notas, atracción a journals, cohesión entre notas
-  relacionadas, distancia a journal y margen anticolisión. Botones para reorganizar o
-  restaurar los valores por defecto.
+- **Zoom / pan**: mouse wheel and drag on the background.
+- **Drag a node**: pins it at that position.
+- **Search box**: highlights notes by name.
+- **"Layout forces" panel**: live controls for the simulation — vertical spread,
+  repulsion between notes, attraction to journals, cohesion between related notes,
+  distance to journal, and anti-collision padding. Buttons to reheat the simulation or
+  restore the defaults.
 
-## Privacidad
+## Privacy
 
-`graph_data.json` y `graph_view.html` son artefactos generados que contienen el
-contenido real de tu grafo (nombres de páginas, fechas, títulos de notas) y están
-excluidos vía `.gitignore` — nunca se commitean. Solo el código generador se versiona.
+`graph_data.json` and `graph_view.html` are generated artifacts that contain the actual
+content of your graph (page names, dates, note titles) and are excluded via
+`.gitignore` — they are never committed. Only the generator code is versioned.
 
-## Requisitos
+## Requirements
 
-- Python 3 (sin dependencias externas).
-- Un navegador moderno para abrir el HTML resultante.
+- Python 3 (no external dependencies).
+- A modern browser to open the resulting HTML.
 
-D3.js (`vendor/d3.min.js`, v7.9.0) está vendorizado bajo su licencia ISC —
-ver [d3js.org](https://d3js.org/).
+D3.js (`vendor/d3.min.js`, v7.9.0) is vendored under its ISC license — see
+[d3js.org](https://d3js.org/).
