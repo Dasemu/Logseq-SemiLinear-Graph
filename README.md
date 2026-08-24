@@ -52,3 +52,7 @@ content of your graph (page names, dates, note titles) and are excluded via
 
 D3.js (`vendor/d3.min.js`, v7.9.0) is vendored under its ISC license — see
 [d3js.org](https://d3js.org/).
+
+## License
+
+Licensed under the GNU General Public License v3.0 — see [LICENSE](LICENSE).
