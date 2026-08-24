@@ -1,0 +1,10 @@
+# Generated output — contains the actual content of a personal Logseq graph
+graph_data.json
+graph_view.html
+
+# Python
+__pycache__/
+*.pyc
+
+# OS / editor
+.DS_Store
