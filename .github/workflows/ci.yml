@@ -1,0 +1,22 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [development]
+  push:
+    branches: [development, main]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      # No linter or test suite is set up in this repo yet; this is a syntax check
+      # that stands in for lint + test until one is added.
+      - name: Syntax check
+        run: python3 -m py_compile build_html.py parse_graph.py

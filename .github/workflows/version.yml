@@ -1,0 +1,69 @@
+name: Version
+
+on:
+  push:
+    branches: [development, main]
+
+permissions:
+  contents: write
+
+jobs:
+  bump:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Bump version
+        id: bump
+        run: |
+          set -e
+          current=$(cat VERSION)
+          IFS='.' read -r major minor patch <<< "$current"
+
+          if [ "${{ github.ref_name }}" = "development" ]; then
+            patch=$((patch + 1))
+          else
+            # push to main: MINOR bump only if every commit on this push came from
+            # development (i.e. this is a development -> main merge), otherwise it's
+            # a direct hotfix push and gets a PATCH bump.
+            merge_base=$(git merge-base origin/development HEAD 2>/dev/null || echo "")
+            if [ -n "$merge_base" ] && [ "$merge_base" = "$(git rev-parse HEAD)" ]; then
+              patch=$((patch + 1))
+            elif [ -n "$merge_base" ] && git log --first-parent -1 --pretty=%P HEAD | grep -q "$merge_base"; then
+              minor=$((minor + 1))
+              patch=0
+            else
+              patch=$((patch + 1))
+            fi
+          fi
+
+          new="$major.$minor.$patch"
+          echo "$new" > VERSION
+          echo "new_version=$new" >> "$GITHUB_OUTPUT"
+
+      - name: Commit version bump
+        run: |
+          git add VERSION
+          git commit -m "chore(release): v${{ steps.bump.outputs.new_version }} [skip ci]"
+          git push origin HEAD:${{ github.ref_name }}
+
+      - name: Merge main back into development
+        if: github.ref_name == 'main'
+        run: |
+          if ! git ls-remote --exit-code --heads origin development >/dev/null; then
+            echo "No development branch yet; nothing to merge back."
+            exit 0
+          fi
+          git fetch origin development
+          git checkout development
+          git merge --no-edit origin/main
+          git push origin development
